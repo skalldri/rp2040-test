@@ -2,7 +2,7 @@
     "configurations": [       
         {
             "cwd": "${workspaceRoot}",
-            "executable": "C:/Users/skall/source/repos/rp2040-test/build/zephyr/zephyr.elf",
+            "executable": "${workspaceRoot}/build/zephyr/zephyr.elf",
             "name": "QEMU Cortex M3",
             "request": "attach",
             "type": "cortex-debug",
@@ -10,7 +10,7 @@
             "configFiles": [],
             "searchDir": [],
             "showDevDebugOutput": "parsed",
-            "gdbPath": "C:/Users/skall/source/repos/zephyr-sdk-0.14.2/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
+            "gdbPath": "${workspaceRoot}/../zephyr-sdk-0.14.2/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
             "gdbTarget": ":1234",
             "serverpath": "C:/Program Files/qemu/qemu-system-arm.exe",
         },
@@ -18,12 +18,12 @@
             "type": "gdb",
             "request": "attach",
             "name": "Attach to gdbserver",
-            "executable": "C:/Users/skall/source/repos/rp2040-test/build/zephyr/zephyr.elf",
+            "executable": "${workspaceRoot}/build/zephyr/zephyr.elf",
             "target": ":1234",
             "remote": true,
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText",
-            "gdbpath": "C:/Users/skall/source/repos/zephyr-sdk-0.14.2/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
+            "gdbpath": "${workspaceRoot}/../zephyr-sdk-0.14.2/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
             "autorun": [],
             "stopAtConnect": true
         }
