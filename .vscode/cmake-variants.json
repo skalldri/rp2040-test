@@ -1,0 +1,32 @@
+{
+    "zephyrBoard": {
+        "default": "native_posix_64",
+        "choices": {
+            "native_posix_64": {
+                "settings": {
+                    "BOARD": "native_posix_64"
+                },
+                "short": "Native POSIX 64-bit"
+            },
+            "qemu_m3": {
+                "settings": {
+                    "BOARD": "qemu_cortex_m3"
+                },
+                "short": "QEMU Cortex M3 (lm3s6965evb)"
+            },
+            "qemu_a53": {
+                "settings": {
+                    "BOARD": "qemu_cortex_a53"
+                },
+                "short": "QEMU Cortex A53 (lm3s6965evb)"
+            },
+            "rpi_pico": {
+                "settings": {
+                    "BOARD": "rpi_pico"
+                },
+                "short": "RP2040"
+            }
+        },
+        "description": "The Zephyr board to use"
+    }
+}

@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "..\\zephyr-sdk-0.14.2"
+		},
+		{
+			"path": "..\\zephyr-3.1.0"
+		}
+	],
+	"settings": {
+		"cortex-debug.registerUseNaturalFormat": false
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "modules/open-amp",
+		"source" : "C:/Users/skall/source/repos/zephyr-3.1.0/modules/lib/open-amp"
+	}
+}

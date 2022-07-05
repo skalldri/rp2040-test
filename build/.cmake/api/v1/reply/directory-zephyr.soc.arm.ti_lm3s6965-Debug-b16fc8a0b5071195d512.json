@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "zephyr/soc/arm/ti_lm3s6965",
+		"source" : "C:/Users/skall/source/repos/zephyr-3.1.0/zephyr/soc/arm/ti_lm3s6965"
+	}
+}
