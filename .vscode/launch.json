@@ -36,7 +36,7 @@
             "servertype": "jlink",
             "configFiles": [],
             "searchDir": [],
-            "showDevDebugOutput": "parsed",
+            // "showDevDebugOutput": "parsed",
             "gdbPath": "C:/Users/skall/source/repos/zephyr-sdk-0.14.2/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
             "gdbTarget": ":2331",
             "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
