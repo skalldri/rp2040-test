@@ -53,7 +53,8 @@
                 //"set 0x40058024 = 0xb007c0d3",
                 // Scratch 7, Entry point
                 //"set 0x40058028 = 0xb007c0d3",
-            ]
+            ],
+            "rtos": "Zephyr",
         },
     ]
 }

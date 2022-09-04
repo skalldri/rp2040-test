@@ -21,6 +21,7 @@ int main() {
 
     while(true) {
         LOG_INF("Hello world!");
+        printk("Hello world!\n");
         k_msleep(2000);
     }
 
@@ -30,6 +31,7 @@ int main() {
 void second_thread_entry(void* a, void* b, void* c) {
     while(true) {
         LOG_INF("Hello world from thread 2!");
+        printk("Console print!\n");
         k_msleep(3000);
     }
 }
