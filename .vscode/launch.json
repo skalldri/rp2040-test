@@ -42,7 +42,7 @@
             "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
             "device": "RP2040_M0_0",
             "interface": "swd",
-            "runToEntryPoint": "z_arm_reset",
+            //"runToEntryPoint": "__start",
             "postLaunchCommands": [
                 "monitor semihosting enable",
                 // Scratch 4, Magic number
