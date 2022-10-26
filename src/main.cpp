@@ -4,7 +4,7 @@ void second_thread_entry(void* a, void* b, void* c);
 
 K_THREAD_DEFINE(
     second_thread, 
-    1024,
+    4096,
     second_thread_entry,
     NULL,
     NULL, 
@@ -15,7 +15,6 @@ K_THREAD_DEFINE(
 );
 
 int main() {
-
     while(true) {
         printk("Hello world from main thread, CPU %d\n", arch_proc_id());
         k_msleep(2000);

@@ -30,31 +30,68 @@
         {
             "cwd": "${workspaceRoot}",
             "executable": "./build/zephyr/zephyr.elf",
-            "name": "RP2040",
+            "name": "RP2040 - Primary",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "jlink",
             "configFiles": [],
             "searchDir": [],
-            // "showDevDebugOutput": "parsed",
             "gdbPath": "C:/Users/skall/source/repos/zephyr-sdk-0.14.2/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
-            "gdbTarget": ":2331",
             "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
             "device": "RP2040_M0_0",
             "interface": "swd",
-            //"runToEntryPoint": "__start",
-            "postLaunchCommands": [
-                "monitor semihosting enable",
-                // Scratch 4, Magic number
-                //"set 0x4005801c = 0xb007c0d3",
-                // Scratch 5, Entry point XOR'd with magic
-                //"set 0x40058020 = 0xb007c0d3",
-                // Scratch 6, Stack pointer
-                //"set 0x40058024 = 0xb007c0d3",
-                // Scratch 7, Entry point
-                //"set 0x40058028 = 0xb007c0d3",
-            ],
+            "breakAfterReset": true,
+            // "numberOfProcessors": 1,
+            // "targetProcessor": 0,
+            // "chainedConfigurations": {
+            //     "enabled": false,
+            //     "waitOnEvent": "postInit",
+            //     "detached": true,
+            //     "lifeCycleShared": true,
+            //     "launches": [
+            //         {
+            //             "name": "RP2040 - Secondary",
+            //         }
+            //     ]
+            // }
+        },
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/zephyr/zephyr.elf",
+            "name": "RP2040 - Secondary",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "configFiles": [],
+            "searchDir": [],
+            "gdbPath": "C:/Users/skall/source/repos/zephyr-sdk-0.14.2/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
+            "gdbTarget": "localhost:50009",
+            "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
+            "breakAfterReset": false,
+            "device": "RP2040_M0_1",
+            "interface": "swd",
             "rtos": "Zephyr",
+            "numberOfProcessors": 1,
+            "targetProcessor": 0,
+        },
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/zephyr/zephyr.elf",
+            "name": "RP2040 - Primary (Attach)",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "configFiles": [],
+            "searchDir": [],
+            "gdbPath": "C:/Users/skall/source/repos/zephyr-sdk-0.14.2/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
+            "gdbTarget": "localhost:50009",
+            "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
+            "breakAfterReset": false,
+            "device": "RP2040_M0_0",
+            "interface": "swd",
+            "rtos": "Zephyr",
+            "numberOfProcessors": 1,
+            "targetProcessor": 0,
         },
     ]
 }
