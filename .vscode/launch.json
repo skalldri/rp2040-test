@@ -41,6 +41,8 @@
             "device": "RP2040_M0_0",
             "interface": "swd",
             "breakAfterReset": true,
+            "rtos": "Zephyr",
+            "runToEntryPoint": "z_arm_reset",
             // "numberOfProcessors": 1,
             // "targetProcessor": 0,
             // "chainedConfigurations": {

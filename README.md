@@ -3,6 +3,45 @@ A repo used for testing / developing SMP support for the RP2040
 
 # DEV LOG
 
+## 11/25/22
+- Picking back up the `k_msleep()` crash. Need to deep-dive the context switch code to see why we might come back from context switch with the wrong stack
+- Idle thread is coming back from context switch with the context of "second_thread_entry"
+- Added additional logging to thread switching. Seeing some really strange behavior. Maybe _current isn't being updated correctly?
+  - See thread switching like this:
+  ```
+  SWITCH: old (0x20000908) -> new (0x200009e0)
+  SWITCH: old (0x200007c0) -> new (0x200009e0)
+  ```
+
+  How is this possible? This is happening inside `arch_switch()`, so we _must_ be switching to the idle thread (0x9e0). How can we then be switching immediately from 0x7c0 -> 0x9e0? We are doing:
+  ```
+  0x908 -> 0x9e0
+  0x7c0 -> 0x9e0
+  ```
+
+  But we should be doing:
+  ```
+  0x908 -> 0x9e0
+  0x9e0 -> 0x7c0
+  0x7c0 -> 0x9e0
+  ```
+
+  Seems possible that thread switching is fundamentally broken somehow.
+
+- Seems specific to the idle thread? Other thread switches seem to work OK...
+- `_current_cpu->current` is just spontaneously changing into a different thread without going through a context switch
+  - This eventually causes a crash, obviously...
+  - Need data watchpoint to identify the cause I think
+  - Found it!!! `z_get_next_switch_handle()` can/will change the value of `_current_cpu->current` without going through the full `do_swap()` kernel routine.
+  - This function gets called in `z_arm_exc_exit`
+  - On exit from certain interrupts (ex: timer interrupts) we can perform a context switch
+  - Might not be taking the PendSV interrupt on exit from `z_arm_exc_exit`? Potential red-herring due to debug wierdness
+  - Added asserts to catch this based on PSP value in callee-saved.
+    - Observing this happen with a pair of unrelated threads. Suggests this is round-robinning its way through the threads until it makes its way to one that causes a crash
+  - Use watchpoint to catch the first instruction instance where we assign the wrong stack pointer to a thread callee saved instance?
+    - This works, and it's a bit nasty. But if we hardware watchpoint every single thread's callee_saved.psp member, we should be able to catch the first instance where the wrong thread gets saved into the wrong stack, and from there track down what causes it
+    - Worked to find the first instance of a bad logging_thread PSP store, but it came from the main_thread. Stack pointers are _definitely_ getting round-robin'd through the system
+
 ## 11/7/22
 - Debugging the crash on the main core:
   ```
