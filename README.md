@@ -3,6 +3,26 @@ A repo used for testing / developing SMP support for the RP2040
 
 # DEV LOG
 
+## 11/26/22
+- Finally solved it!
+- The problem was that the scheduler was "changing its mind" about what thread it wanted to run next in the ISR handler
+- The problem would happen something like this:
+  - Setup: we have 3 threads. A, B, C. A is `_current`, and is running.
+  - An interrupt happens and interrupts the running A thread. A's CPU registers are preserved by the ISR, and it's stack pointer is stored in PSP while the ISR uses MSP.
+  - Scheduler runs at the end of an ISR and selects thread A and B should swap. Code sets up A and B to swap using arch.swap_to and arch.swapped_from. `_current` now points to thread B, because of how Zephyr's context switching code runs
+  - Before PendSV has a chance to run, another ISR arrives. Due to tail-chaining, the ISR runs immediately, before PendSV has a chance to run. At this point, thread A's context is still stored on the CPU, but `_current` points at thread B.
+  - At the end of the ISR, the scheduler decides that it should swap B and C (because B == `_current`)
+  - The scheduler code we wrote would now setup a context switch between B and C using the arch.swapped_from and arch.swap_to variables.
+  - PendSV now runs and stores the current CPU context into B. However, the context on the CPU was actually thread A's context!! B's thread context now contains data from thread A.
+  - Thread C gets swapped in as normal.
+- This repeats until the system crashes, with threads round-robinning through the various available thread context slots
+- The fix was to detect this condition in the ISR scheduler. If the thread we are swapping has its swapped_from value set, that means we didn't get a pass through the scheduler yet. We are in a situation where the scheduler asked us to perform swap(A, B) -> swap(B, C) without a PendSV in the middle. We detect this, and collapse it down to swap(A, C)
+- Since this can only occur with tail-chained interrupts, and each time we detect it we fix it, this can repeat itself. Say the scheduler changes its mind multiple times. swap(A, B) -> swap(B, C) -> swap (C, A). We execute this as:
+  - swap(A, B)
+  - swap(B, C) -> Detect missing PendSV, actually record swap(A, C)
+  - swap (C, A) -> Detect missing PendSV, actually record swap(A, A)
+- Swapping A with A is undesirable / inefficient, but not a huge problem
+
 ## 11/25/22
 - Picking back up the `k_msleep()` crash. Need to deep-dive the context switch code to see why we might come back from context switch with the wrong stack
 - Idle thread is coming back from context switch with the context of "second_thread_entry"
