@@ -3,6 +3,39 @@ A repo used for testing / developing SMP support for the RP2040
 
 # DEV LOG
 
+## 11/28/22
+- The next bug: incorrect idle thread re-queueing on secondary core
+- Getting an assert caused by the idle thread getting passed into the re-queuing function
+- Happens via k_yield
+  - k_yield() -> queue_thread(_current)
+  - k_yield() -> z_swap() -> do_swap() -> z_requeue_current() -> ASSERT()
+  - Maybe a bug in `should_queue_thread()`? Comments suggest that it should be `return !IS_ENABLED(CONFIG_SMP) && th != _current;`, instead of `return !IS_ENABLED(CONFIG_SMP) || th != _current;`
+- Why does k_yield do these silly things? It `dequeue_thread()` then `queue_thread()` the same thread? Maybe this is how yield is implemented, with the intention that it puts the current thread on the back of the runq, so it gets round-robinn'ed
+
+- DO NOT ALLOW J-LINK TO USE "FLASH BREAKPOINTS"
+  - RPI2040's bootloader will detect invalid CRCs and fail to boot
+  - No way to turn it off until the license expires after a day!
+
+- Cortex-Debug has bugs that delete all the watchpoints from J-Link unless a breakpoint (any breakpoint) is also enabled in the code
+
+## 11/27/22
+- With the primary core crash out of the way, lets get back to SMP
+- Secondary core crashing during initialization
+- Problem turns out to be related to stack management
+  - ARM cores boot using the machine-mode stack pointer (MSP)
+  - Zephyr uses the PSP for all user-mode / thread activity, and the MSP for all ISR work (including some syscalls)
+  - Zephyr gets messed up if we don't use the PSP for thread activity
+  - When ARM32 takes an interrupt, it remembers which stack was in use before the interrupt occurred (PSP, MSP) and stores a different value in the LR for returning from the ISR. If it was MSP, it stores 0xFFFFFFF9. If it was PSP, it stores 0xFFFFFFFD. When we return from an ISR, this value determines which SP gets used in the code coming back out of the ISR. We need this to be the PSP.
+  - The context switching code for ARM32 doesn't do anything special: it assumes that whatever mode we enter the ISR from, we want to return to (unless we enable EXEC_RETURN capture)
+  - In the ARM32 startup code for a single core, we set the PSP == the initial value of the MSP, then it switches the processor to using PSP for all startup code. During the initial context switch, we enter the ISR from PSP mode, so we get placed back into PSP mode after the initial context switch. This is how the initial context switch enters the correct stack mode.
+  - This also allows us to use the MSP stack for all our boot code / logic, and then reclaim and re-use that stack later for all ISRs. Because MSP is still at it's original power-on value, the first interrupt we take will erase the boot code's stack.
+- Secondary core wasn't using PSP before calling the first context switch, which leads to big corruption.
+- Secondary core is also using dummy_thread based initialization, which doesn't work with ARM32 yet.
+  - Writing non-dummy_thread based startup code for SMP is a lot of work. Easier to make ARM32 support dummy_thread
+  - Turns out to not be too hard: just add a special case in the context switching code for "switched_from" == NULL. Then when we detect that we're switching from the dummy_thread to a real thread during startup, set switched_from == NULL.
+- Initially tried to get the dummy_thread to initialize correctly, and actually perform a one-time context switch into the dummy thread. This is fools errand though, because the dummy_thread is allocated on the MSP / ISR stack. We trash this stack during the initial context switch, so the dummy_thread cannot be trusted. It's better to set "switched_from" to be NULL in a known-safe thread.
+- Was able to get a thread to run on the secondary core! But now we're crashing again.
+
 ## 11/26/22
 - Finally solved it!
 - The problem was that the scheduler was "changing its mind" about what thread it wanted to run next in the ISR handler
