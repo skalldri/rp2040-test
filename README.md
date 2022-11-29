@@ -4,6 +4,13 @@ A repo used for testing / developing SMP support for the RP2040
 # DEV LOG
 
 ## 11/28/22
+- Solved!
+- Looks like bugs in Zephyr
+- The idle thread should _never_ be placed in the runq
+- Not enough checks to prevent that from happening
+- Add more checks to guarantee that it never happens and problem solved!
+
+## 11/27/22 - Second Bug
 - The next bug: incorrect idle thread re-queueing on secondary core
 - Getting an assert caused by the idle thread getting passed into the re-queuing function
 - Happens via k_yield
@@ -13,10 +20,10 @@ A repo used for testing / developing SMP support for the RP2040
 - Why does k_yield do these silly things? It `dequeue_thread()` then `queue_thread()` the same thread? Maybe this is how yield is implemented, with the intention that it puts the current thread on the back of the runq, so it gets round-robinn'ed
 
 - DO NOT ALLOW J-LINK TO USE "FLASH BREAKPOINTS"
-  - RPI2040's bootloader will detect invalid CRCs and fail to boot
-  - No way to turn it off until the license expires after a day!
+  - RP2040's bootloader will detect invalid CRCs and fail to boot
+  - No way to turn it off until the license expires after a day! :(
 
-- Cortex-Debug has bugs that delete all the watchpoints from J-Link unless a breakpoint (any breakpoint) is also enabled in the code
+- Cortex-Debug has bugs that delete all the watchpoints from J-Link unless a breakpoint (any breakpoint) is also enabled in the code. FML.
 
 ## 11/27/22
 - With the primary core crash out of the way, lets get back to SMP
