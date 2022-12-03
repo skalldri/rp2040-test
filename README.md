@@ -3,6 +3,22 @@ A repo used for testing / developing SMP support for the RP2040
 
 # DEV LOG
 
+## 12/3/22
+- Lets try to solve the deadlock issue, and hopefully solve the problem of threads clearly not running at-rate
+- Hrm. Just saying "never re-queue threads" is obviously too simplistic.
+- Potentially the idle loop busy-waiting is causing us problems...
+- YOLO! Lets implement IPI!
+- Well that seems to have solved it! Very easy!
+
+
+## 11/28/22
+- Solve one bug, find another
+- Eventually deadlocks
+- Scheduler on one core is picking a thread which is running on the other core
+- Deadlock!
+- Code comments suggest this happens if a thread gets put back in the runq while not inside the scheduler spinlock...
+- A problem for another day
+
 ## 11/28/22
 - Solved!
 - Looks like bugs in Zephyr
