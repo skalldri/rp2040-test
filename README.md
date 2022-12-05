@@ -23,7 +23,13 @@ A repo used for testing / developing SMP support for the RP2040
   - Permanent lockout potentially happens due to not holding an ISR lock while waiting for the other core to lockout? Can result in us getting swapped to a new thread after issuing the lockout to the other core
   - Would potentially result in extremely bad things (TM)
   - Scheduler deadlock resolved by calling the lockout function under ISR lock!
-
+- Problem: PendSV can get interrupted by SysTick
+  - This can cause deadlock on SMP systems
+  - Aarch32 sets PendSV to the lowest priority (?????)
+  - CM0-Plus CMSIS code is setting priorities for special interrupts (SysTick, SVC, PendSV) incorrectly...
+  - Fixed the bug in CMSIS code. SysTick now executes at a lower priority than PendSV...
+  - And the system crashes immediately. Sigh.
+  - Problem for another day.
 ## 12/3/22
 - Lets try to solve the deadlock issue, and hopefully solve the problem of threads clearly not running at-rate
 - Hrm. Just saying "never re-queue threads" is obviously too simplistic.
