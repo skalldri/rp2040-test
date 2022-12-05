@@ -16,6 +16,12 @@ A repo used for testing / developing SMP support for the RP2040
 - New problem: threads are waking up _way_ too often.
   - Likely cause: the SysTick timers are not consistent between the two cores
   - Need to examine the cortex_m_systick code very carefully to see how to solve this...
+  - Oh dear. cortex_m_systick uses lots of global state variables. They're likely being shared between cores.
+  - Also suspect that the systick timers on both cores are not the same...
+- Tried to make cortex_m_systick parallelizable by adding a variable for each core. Didn't go well
+- Results in a scheduler deadlock. A core ends up in an infinite wait_for_switch() for a thread which isn't active on the other core, and the other core gets permanently locked out
+  - Permanent lockout potentially happens due to not holding an ISR lock while waiting for the other core to lockout? Can result in us getting swapped to a new thread after issuing the lockout to the other core
+  - Would potentially result in extremely bad things (TM)
 
 ## 12/3/22
 - Lets try to solve the deadlock issue, and hopefully solve the problem of threads clearly not running at-rate
