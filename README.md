@@ -3,6 +3,20 @@ A repo used for testing / developing SMP support for the RP2040
 
 # DEV LOG
 
+## 12/4/22
+- So lets start building something real with SMP! 
+- Lets build a simple USB device
+- First problem: hwid
+  - On RP2040, the hwid driver reads the flash memory serial number to use as the serial number. Sure....
+  - To read this value, we have to take the flash out of XIP mode
+  - The functions to do this are RAMFUNCs to ensure that when the flash leaves XIP mode, we can keep executing our code
+  - Problem: the other core doesn't know we're about to mess with flash memory, so it will continue executing. It will hit a hard-fault when it tries to load invalid flash memory
+  - Solution: lockout the other core using the FIFO. Send a special message to the other core's FIFO ISR, which causes it to busy-wait in the ISR to get unlocked. Ensure the ISR and all dependent functions are RAMFUNCs as well.
+  - Great! It works!
+- New problem: threads are waking up _way_ too often.
+  - Likely cause: the SysTick timers are not consistent between the two cores
+  - Need to examine the cortex_m_systick code very carefully to see how to solve this...
+
 ## 12/3/22
 - Lets try to solve the deadlock issue, and hopefully solve the problem of threads clearly not running at-rate
 - Hrm. Just saying "never re-queue threads" is obviously too simplistic.
